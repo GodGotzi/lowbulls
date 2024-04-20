@@ -42,28 +42,25 @@ lowbulls = "0.1.0"
 Here's a simple example demonstrating how you might use Lowbull(s) with egui:
 
 ```rust
-let application = Rc::new(RefCell::new(Application {
-    render: false,
-    test: false,
-}));
-
-let mut master = logic::LowBullMaster::<Message, Rc<RefCell<Application>>, Response>::new(
-    application.clone(),
-);
-
-master.register_logic(Message::StartRender, Box::new(handle_render_start));
-master.register_logic(Message::StopRender, Box::new(handle_render_stop));
-master.register_logic(Message::ToggleTest, Box::new(toggle_test));
-master.register_logic(Message::CheckTest, Box::new(check_test));
-master.register_logic(Message::CheckRender, Box::new(check_render));
-
-assert!(!application.borrow().render);
-assert!(!application.borrow().test);
-
-for frame in 0..10 {
-    ui_frame(&mut master, frame as u32);
-    // assert!(application.borrow().render);
-    // assert!(application.borrow().test);
+fn main() {
+    let application = Rc::new(RefCell::new(Application {
+        render: false,
+        test: false,
+    }));
+    
+    let mut master = logic::LowBullMaster::<Message, Rc<RefCell<Application>>, Response>::new(
+        application.clone(),
+    );
+    
+    master.register_logic(Message::StartRender, Box::new(handle_render_start));
+    master.register_logic(Message::StopRender, Box::new(handle_render_stop));
+    master.register_logic(Message::ToggleTest, Box::new(toggle_test));
+    master.register_logic(Message::CheckTest, Box::new(check_test));
+    master.register_logic(Message::CheckRender, Box::new(check_render));
+    
+    loop {
+        ui_frame(&mut master);
+    }
 }
 ```
 
