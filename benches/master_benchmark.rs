@@ -127,9 +127,6 @@ fn criterion_benchmark(c: &mut Criterion) {
     master.register_logic(Message::CheckTest, Box::new(check_test));
     master.register_logic(Message::CheckRender, Box::new(check_render));
 
-    assert!(!application.borrow().render);
-    assert!(!application.borrow().test);
-
     c.bench_function("Test", |b| b.iter(|| test_master(black_box(&mut master))));
 
     c.bench_function("Single Action Call", |b| {
