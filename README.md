@@ -42,7 +42,6 @@ lowbulls = "0.1.0"
 Here's a simple example demonstrating how you might use Lowbull(s) with egui:
 
 ```rust
-Copy code
 extern crate lowbulls;
 
 use lowbulls::BusinessLogic;
