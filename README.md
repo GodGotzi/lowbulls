@@ -1,5 +1,5 @@
 # Lowbull(s): Low Cost Business and UI Logic Separator
->*low* cost *b*uisness and *u*i *l*ogic *s*eperator
+>*low* cost *b*usiness and *u*i *l*ogic *s*eperator
 
 Lowbull(s) is a Rust library that abstracts business logic away from UI logic, enabling developers to separate and reuse these components independently across different UI frameworks or applications. This project offers a flexible and lightweight solution to manage core logic separately from user interface implementation.
 
