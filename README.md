@@ -42,61 +42,28 @@ lowbulls = "0.1.0"
 Here's a simple example demonstrating how you might use Lowbull(s) with egui:
 
 ```rust
-extern crate lowbulls;
+let application = Rc::new(RefCell::new(Application {
+    render: false,
+    test: false,
+}));
 
-use lowbulls::BusinessLogic;
+let mut master = logic::LowBullMaster::<Message, Rc<RefCell<Application>>, Response>::new(
+    application.clone(),
+);
 
-// Define your business logic
-struct Calculator {
-    value: f32,
-}
+master.register_logic(Message::StartRender, Box::new(handle_render_start));
+master.register_logic(Message::StopRender, Box::new(handle_render_stop));
+master.register_logic(Message::ToggleTest, Box::new(toggle_test));
+master.register_logic(Message::CheckTest, Box::new(check_test));
+master.register_logic(Message::CheckRender, Box::new(check_render));
 
-impl BusinessLogic for Calculator {
-    fn new() -> Self {
-        Calculator { value: 0.0 }
-    }
+assert!(!application.borrow().render);
+assert!(!application.borrow().test);
 
-    fn add(&mut self, x: f32) {
-        self.value += x;
-    }
-
-    fn subtract(&mut self, x: f32) {
-        self.value -= x;
-    }
-
-    fn get_result(&self) -> f32 {
-        self.value
-    }
-}
-
-// UI logic (using egui)
-fn ui_logic(calc: &mut Calculator) {
-    egui::CentralPanel::default().show(egui::Window::new("Calculator").show(ui(|ui| {
-        ui.label(format!("Result: {}", calc.get_result()));
-
-        if ui.button("Add").clicked() {
-            calc.add(1.0);
-        }
-
-        if ui.button("Subtract").clicked() {
-            calc.subtract(1.0);
-        }
-    })));
-}
-
-fn main() {
-    let mut calculator = Calculator::new();
-
-    loop {
-        // Update UI with business logic
-        ui_logic(&mut calculator);
-
-        // Render UI (e.g., egui)
-        // your_render_function();
-
-        // Handle events and other application logic
-        // your_event_handling_function();
-    }
+for frame in 0..10 {
+    ui_frame(&mut master, frame as u32);
+    // assert!(application.borrow().render);
+    // assert!(application.borrow().test);
 }
 ```
 
