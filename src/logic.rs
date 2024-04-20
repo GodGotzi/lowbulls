@@ -39,7 +39,6 @@ impl<K: Eq + Hash + std::fmt::Debug, A, R> LowBullMaster<K, A, R> {
 
     pub fn run_logic(&mut self, key: K, response: R) -> Result<()> {
         let mut logic_actions = self.logic_actions.write().unwrap();
-        println!("{:?}", key);
 
         let action = logic_actions.get_mut(&key).unwrap();
         action(&mut self.application, response)

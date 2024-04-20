@@ -7,3 +7,10 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.82"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "master_benchmark"
+harness = false
