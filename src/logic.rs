@@ -1,40 +1,29 @@
 use anyhow::Result;
 use std::{
     collections::HashMap,
-    hash::Hash,
     sync::{Arc, RwLock},
 };
 
-type Action<A, R> = Box<dyn FnMut(&mut A, R) -> Result<()>>;
-
-pub enum UiValue {
-    Bool(bool),
-    I32(i32),
-    U32(u32),
-    F32(f32),
-    I64(i64),
-    U64(u64),
-    F64(f64),
-    String(String),
+pub trait LogicKey {
+    fn to_index(&self) -> usize;
+    fn len() -> usize;
 }
 
-pub struct LowBullMaster<K: Eq + Hash, A, R> {
-    application: A,
-    logic_actions: Arc<RwLock<HashMap<K, Action<A, R>>>>,
-    ui_values: HashMap<K, UiValue>,
+pub trait LowBullApplication<K: Eq + LogicKey> {
+    fn handle_key(&mut self, key: K) -> Result<()>;
 }
 
-impl<K: Eq + Hash + std::fmt::Debug, A, R> LowBullMaster<K, A, R> {
-    pub fn new(application: A) -> Self {
+impl<K: Eq + LogicKey + std::fmt::Debug> LowBullMaster<K, A> {
+    pub fn new() -> Self {
         Self {
             application,
-            logic_actions: Arc::new(RwLock::new(HashMap::new())),
+            logic_actions: Arc::new(RwLock::new(vec![Some(0); K::len()])),
             ui_values: HashMap::new(),
         }
     }
 
     pub fn register_logic(&mut self, key: K, action: Action<A, R>) {
-        self.logic_actions.write().unwrap().insert(key, action);
+        self.logic_actions.write().unwrap()[key.to_index()] = Some(action);
     }
 
     pub fn run_logic(&mut self, key: K, response: R) -> Result<()> {
