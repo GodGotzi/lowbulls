@@ -1,5 +1,5 @@
 # Lowbull(s): Low Cost Business and UI Logic Separator
->*low* cost *b*uisness and *u*i *l*ogic *s*eperator
+>*low* cost *b*usiness and *u*i *l*ogic *s*eperator
 
 Lowbull(s) is a Rust library that abstracts business logic away from UI logic, enabling developers to separate and reuse these components independently across different UI frameworks or applications. This project offers a flexible and lightweight solution to manage core logic separately from user interface implementation.
 
@@ -42,60 +42,24 @@ lowbulls = "0.1.0"
 Here's a simple example demonstrating how you might use Lowbull(s) with egui:
 
 ```rust
-extern crate lowbulls;
-
-use lowbulls::BusinessLogic;
-
-// Define your business logic
-struct Calculator {
-    value: f32,
-}
-
-impl BusinessLogic for Calculator {
-    fn new() -> Self {
-        Calculator { value: 0.0 }
-    }
-
-    fn add(&mut self, x: f32) {
-        self.value += x;
-    }
-
-    fn subtract(&mut self, x: f32) {
-        self.value -= x;
-    }
-
-    fn get_result(&self) -> f32 {
-        self.value
-    }
-}
-
-// UI logic (using egui)
-fn ui_logic(calc: &mut Calculator) {
-    egui::CentralPanel::default().show(egui::Window::new("Calculator").show(ui(|ui| {
-        ui.label(format!("Result: {}", calc.get_result()));
-
-        if ui.button("Add").clicked() {
-            calc.add(1.0);
-        }
-
-        if ui.button("Subtract").clicked() {
-            calc.subtract(1.0);
-        }
-    })));
-}
-
 fn main() {
-    let mut calculator = Calculator::new();
-
+    let application = Rc::new(RefCell::new(Application {
+        render: false,
+        test: false,
+    }));
+    
+    let mut master = logic::LowBullMaster::<Message, Rc<RefCell<Application>>, Response>::new(
+        application.clone(),
+    );
+    
+    master.register_logic(Message::StartRender, Box::new(handle_render_start));
+    master.register_logic(Message::StopRender, Box::new(handle_render_stop));
+    master.register_logic(Message::ToggleTest, Box::new(toggle_test));
+    master.register_logic(Message::CheckTest, Box::new(check_test));
+    master.register_logic(Message::CheckRender, Box::new(check_render));
+    
     loop {
-        // Update UI with business logic
-        ui_logic(&mut calculator);
-
-        // Render UI (e.g., egui)
-        // your_render_function();
-
-        // Handle events and other application logic
-        // your_event_handling_function();
+        ui_frame(&mut master);
     }
 }
 ```
