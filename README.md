@@ -1,32 +1,8 @@
-# LowBull
+# LowBulls
 
-[![Latest Version](https://img.shields.io/crates/v/lowbull.svg)](https://crates.io/crates/lowbull)
-[![Documentation](https://docs.rs/lowbull/badge.svg)](https://docs.rs/lowbull)
-[![License](https://img.shields.io/crates/l/lowbull.svg)](https://github.com/yourusername/lowbull#license)
-
-`lowbull` is a Rust crate providing a framework for message handling and event monitoring.
-
-## Overview
-
-This crate defines two main modules: `core` and `watch`. The `core` module contains foundational traits and types for message handling, while the `watch` module provides utilities for monitoring events.
-
-## Usage
-
-To use `lowbull`, add it as a dependency in your `Cargo.toml`:
-
-```toml
-[dependencies]
-lowbull = "0.1.0"
-```
-
-
-markdown
-Copy code
-# LowBull
-
-[![Latest Version](https://img.shields.io/crates/v/lowbull.svg)](https://crates.io/crates/lowbull)
-[![Documentation](https://docs.rs/lowbull/badge.svg)](https://docs.rs/lowbull)
-[![License](https://img.shields.io/crates/l/lowbull.svg)](https://github.com/yourusername/lowbull#license)
+[![Latest Version](https://img.shields.io/crates/v/lowbull.svg)](https://crates.io/crates/lowbulls)
+[![Documentation](https://docs.rs/lowbull/badge.svg)](https://docs.rs/lowbulls)
+[![License](https://img.shields.io/crates/l/lowbull.svg)](https://github.com/godgotzi/lowbulls#license)
 
 `lowbull` is a Rust crate providing a framework for message handling and event monitoring.
 
