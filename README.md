@@ -4,6 +4,9 @@
 [![Documentation](https://docs.rs/lowbulls/badge.svg)](https://docs.rs/lowbulls)
 [![License](https://img.shields.io/crates/l/lowbulls.svg)](https://github.com/godgotzi/lowbulls#license)
 
+
+'low cost buisness and ui logic seperator'
+
 `lowbull` is a Rust crate providing a framework for message handling and event monitoring.
 
 ## Overview
