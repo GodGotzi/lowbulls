@@ -1,6 +1,6 @@
 [package]
 name = "lowbulls"
-version = "0.1.13"
+version = "0.1.14"
 edition = "2021"
 description = "lowbull is a Rust crate facilitating message handling and event monitoring"
 license = "Apache-2.0"
