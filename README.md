@@ -16,7 +16,7 @@ To use `lowbull`, add it as a dependency in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-lowbull = "0.1.0"
+lowbull = "0.1.11"
 ```
 
 Then, you can use the crate in your Rust code by importing the necessary modules:
