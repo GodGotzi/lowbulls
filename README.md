@@ -1,7 +1,7 @@
 # LowBulls
 
-[![Latest Version](https://img.shields.io/crates/v/lowbull.svg)](https://crates.io/crates/lowbulls)
-[![Documentation](https://docs.rs/lowbull/badge.svg)](https://docs.rs/lowbulls)
+[![Latest Version](https://img.shields.io/crates/v/lowbulls.svg)](https://crates.io/crates/lowbulls)
+[![Documentation](https://docs.rs/lowbulls/badge.svg)](https://docs.rs/lowbulls)
 [![License](https://img.shields.io/crates/l/lowbull.svg)](https://github.com/godgotzi/lowbulls#license)
 
 `lowbull` is a Rust crate providing a framework for message handling and event monitoring.
