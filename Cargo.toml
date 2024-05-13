@@ -2,6 +2,8 @@
 name = "lowbulls"
 version = "0.1.0"
 edition = "2021"
+description = "lowbull is a Rust crate facilitating message handling and event monitoring"
+license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,7 +12,3 @@ anyhow = "1.0.82"
 
 [dev-dependencies]
 criterion = "0.5.1"
-
-[[bench]]
-name = "master_benchmark"
-harness = false
