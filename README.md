@@ -1,5 +1,6 @@
 # LowBulls
 
+[<img alt="github" src="https://img.shields.io/badge/github-godgotzi/lowbulls-8da0cb?logo=github" height="20">](https://github.com/godgotzi/lowbulls)
 [![Latest Version](https://img.shields.io/crates/v/lowbulls.svg)](https://crates.io/crates/lowbulls)
 [![Documentation](https://docs.rs/lowbulls/badge.svg)](https://docs.rs/lowbulls)
 [![License](https://img.shields.io/crates/l/lowbulls.svg)](https://github.com/godgotzi/lowbulls#license)
