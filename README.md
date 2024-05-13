@@ -1,71 +1,116 @@
-# Lowbull(s): Low Cost Business and UI Logic Separator
->*low* cost *b*usiness and *u*i *l*ogic *s*eperator
+# LowBull
 
-Lowbull(s) is a Rust library that abstracts business logic away from UI logic, enabling developers to separate and reuse these components independently across different UI frameworks or applications. This project offers a flexible and lightweight solution to manage core logic separately from user interface implementation.
+[![Latest Version](https://img.shields.io/crates/v/lowbull.svg)](https://crates.io/crates/lowbull)
+[![Documentation](https://docs.rs/lowbull/badge.svg)](https://docs.rs/lowbull)
+[![License](https://img.shields.io/crates/l/lowbull.svg)](https://github.com/yourusername/lowbull#license)
+
+`lowbull` is a Rust crate providing a framework for message handling and event monitoring.
 
 ## Overview
 
-In software projects, especially those with graphical user interfaces (GUIs), cleanly separating business logic (how the application works) from UI logic (how it's presented) enhances code readability, maintainability, and flexibility.
+This crate defines two main modules: `core` and `watch`. The `core` module contains foundational traits and types for message handling, while the `watch` module provides utilities for monitoring events.
 
-Lowbull(s) lets you define and manage core application logic independently of any specific UI framework, making it easy to integrate with different UI libraries like egui.
+## Usage
 
-## Features
-
-- **Business Logic Abstraction**: Define and implement application's business rules using Lowbull(s).
-- **UI Logic Decoupling**: Develop UI components with any framework while keeping business logic separate.
-- **Flexibility**: Swap or update UI without impacting application behavior.
-- **Minimal Overhead**: Lightweight and efficient design.
-
-## Getting Started
-
-### Prerequisites
-
-- Rust (latest stable version recommended)
-- Cargo (Rust's package manager)
-
-### Installation
-
-To use Lowbull(s) in your Rust project, add it as a dependency in your `Cargo.toml`:
+To use `lowbull`, add it as a dependency in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-lowbulls = "0.1.0"
+lowbull = "0.1.0"
 ```
+
+
+markdown
+Copy code
+# LowBull
+
+[![Latest Version](https://img.shields.io/crates/v/lowbull.svg)](https://crates.io/crates/lowbull)
+[![Documentation](https://docs.rs/lowbull/badge.svg)](https://docs.rs/lowbull)
+[![License](https://img.shields.io/crates/l/lowbull.svg)](https://github.com/yourusername/lowbull#license)
+
+`lowbull` is a Rust crate providing a framework for message handling and event monitoring.
+
+## Overview
+
+This crate defines two main modules: `core` and `watch`. The `core` module contains foundational traits and types for message handling, while the `watch` module provides utilities for monitoring events.
 
 ## Usage
-- **Define Your Business LogicStart** by defining your business logic, which includes structs, enums, functions, and any data manipulation or rules specific to your application's functionality.
-- **Implement Business Logic with Lowbull(s)** Integrate Lowbull(s) into your business logic implementation. Use Lowbull(s) to encapsulate and manage the core functionality of your application.
-- **Develop UI Components** Independently develop your UI components using a UI framework of your choice (e.g., egui).
-- **Connect UI to Business Logic** Use Lowbull(s) to bridge the gap between your UI components and the underlying business logic. Implement event handling and data synchronization between the two layers.
 
-### Example
-Here's a simple example demonstrating how you might use Lowbull(s) with egui:
+To use `lowbull`, add it as a dependency in your `Cargo.toml`:
 
-```rust
-fn main() {
-    let application = Rc::new(RefCell::new(Application {
-        render: false,
-        test: false,
-    }));
-    
-    let mut master = logic::LowBullMaster::<Message, Rc<RefCell<Application>>, Response>::new(
-        application.clone(),
-    );
-    
-    master.register_logic(Message::StartRender, Box::new(handle_render_start));
-    master.register_logic(Message::StopRender, Box::new(handle_render_stop));
-    master.register_logic(Message::ToggleTest, Box::new(toggle_test));
-    master.register_logic(Message::CheckTest, Box::new(check_test));
-    master.register_logic(Message::CheckRender, Box::new(check_render));
-    
-    loop {
-        ui_frame(&mut master);
-    }
-}
+```toml
+[dependencies]
+lowbull = "0.1.0"
 ```
 
-## Contribution
-Contributions to Lowbull(s) are welcome! If you have suggestions, feature requests, or want to report a bug, please open an issue on GitHub.
+Then, you can use the crate in your Rust code by importing the necessary modules:
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+```rust
+use lowbull::core::LowBullMaster;
+use lowbull::watch::LowBullWatcher;
+use anyhow::Result;
+
+// Your code here...
+```
+
+# Examples
+
+Here's a simple example demonstrating the usage of lowbull:
+
+
+```rust
+use lowbull::core::LowBullMaster;
+use lowbull::watch::LowBullWatcher;
+use anyhow::Result;
+
+// Define message types
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
+enum Message {
+    StartRender,
+    StopRender,
+    GetRender,
+}
+
+// Define response types
+#[derive(Debug, Hash, PartialEq, Eq)]
+enum Response {
+    Render(bool),
+    None,
+}
+
+// Implement a message handler
+struct Master {
+    render: bool,
+    #[cfg(debug_assertions)]
+    watcher: LowBullWatcher<Message>,
+}
+
+impl LowBullMaster<Message, Response> for Master {
+    fn handle(&mut self, key: Message) -> Result<Response> {
+        if cfg!(debug_assertions) {
+            self.watcher.watch(key);
+        }
+
+        match key {
+            Message::StartRender => {
+                self.render = true;
+                Ok(Response::None)
+            }
+            Message::StopRender => {
+                self.render = false;
+                Ok(Response::None)
+            }
+            Message::GetRender => Ok(Response::Render(self.render)),
+        }
+    }
+}
+
+// Your code here...
+
+```
+
+For more examples and detailed usage, please refer to the documentation.
+
+# License
+
+'lowbull' is licensed under the Apache 2.0 license. See LICENSE for details.
