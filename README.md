@@ -41,46 +41,69 @@ Here's a simple example demonstrating the usage of lowbull:
 ```rust
 use lowbull::core::LowBullMaster;
 use lowbull::watch::LowBullWatcher;
-use anyhow::Result;
+use lowbull::anyhow::Result;
 
 // Define message types
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 enum Message {
     StartRender,
     StopRender,
-    GetRender,
 }
 
 // Define response types
 #[derive(Debug, Hash, PartialEq, Eq)]
 enum Response {
-    Render(bool),
     None,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
+enum ResourceKey {
+    GetTest,
+    GetRender,
+}
+    
+#[derive(Debug, Hash, PartialEq, Eq)]
+enum Resource {
+    Render(bool),
+    Test(bool),
 }
 
 // Implement a message handler
 struct Master {
     render: bool,
     #[cfg(debug_assertions)]
-    watcher: LowBullWatcher<Message>,
+    handle_watcher: watch::LowBullWatcher<HandleKey>,
+    #[cfg(debug_assertions)]
+    resource_watcher: RefCell<watch::LowBullWatcher<ResourceKey>>,
 }
 
-impl LowBullMaster<Message, Response> for Master {
-    fn handle(&mut self, key: Message) -> Result<Response> {
+impl LowBullMaster<HandleKey, Response, ResourceKey, Resource> for Master {
+    fn handle(&mut self, key: HandleKey) -> Result<Response> {
         if cfg!(debug_assertions) {
-            self.watcher.watch(key);
+            self.handle_watcher.watch(key);
         }
 
         match key {
-            Message::StartRender => {
+            HandleKey::StartRender => {
                 self.render = true;
                 Ok(Response::None)
             }
-            Message::StopRender => {
+            HandleKey::StopRender => {
                 self.render = false;
                 Ok(Response::None)
             }
-            Message::GetRender => Ok(Response::Render(self.render)),
+            HandleKey::Empty => Ok(Response::None),
+        }
+    }
+
+    fn get_resource(&self, key: ResourceKey) -> Result<Resource> {
+        if cfg!(debug_assertions) {
+            self.resource_watcher.borrow_mut().watch(key);
+        }
+
+        match key {
+            ResourceKey::GetTest => Ok(Resource::Test(true)),
+            ResourceKey::GetRender => Ok(Resource::Render(self.render)),
         }
     }
 }
