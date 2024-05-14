@@ -14,8 +14,8 @@
 //! Then, you can use the crate in your Rust code by importing the necessary modules:
 //!
 //! ```rust
-//! use lowbull::core::LowBullMaster;
-//! use lowbull::watch::LowBullWatcher;
+//! use lowbulls::core::LowBullMaster;
+//! use lowbulls::watch::LowBullWatcher;
 //! use anyhow::Result;
 //!
 //! // Your code here...
@@ -26,8 +26,8 @@
 //! Here's a simple example demonstrating the usage of `lowbull`:
 //!
 //! ```rust
-//! use lowbull::core::LowBullMaster;
-//! use lowbull::watch::LowBullWatcher;
+//! use lowbulls::core::LowBullMaster;
+//! use lowbulls::watch::LowBullWatcher;
 //! use anyhow::Result;
 //!
 //! // Define message types
@@ -35,14 +35,24 @@
 //! enum Message {
 //!     StartRender,
 //!     StopRender,
-//!     GetRender,
 //! }
 //!
 //! // Define response types
 //! #[derive(Debug, Hash, PartialEq, Eq)]
 //! enum Response {
-//!     Render(bool),
 //!     None,
+//! }
+//!
+//! #[derive(Debug, Hash, PartialEq, Eq)]
+//! enum ResourceKey {
+//!     GetTest,
+//!     GetRender,
+//! }
+//!
+//! #[derive(Debug, Hash, PartialEq, Eq)]
+//! enum Resource {
+//!     Test(bool),
+//!    Render(bool),
 //! }
 //!
 //! // Implement a message handler
@@ -52,7 +62,7 @@
 //!     watcher: LowBullWatcher<Message>,
 //! }
 //!
-//! impl LowBullMaster<Message, Response> for Master {
+//! impl LowBullMaster<Message, Response, ResourceKey, Resource> for Master {
 //!     fn handle(&mut self, key: Message) -> Result<Response> {
 //!         if cfg!(debug_assertions) {
 //!             self.watcher.watch(key);
@@ -67,7 +77,13 @@
 //!                 self.render = false;
 //!                 Ok(Response::None)
 //!             }
-//!             Message::GetRender => Ok(Response::Render(self.render)),
+//!         }
+//!     }
+//!
+//!     fn get_resource(&self, key: ResourceKey) -> Result<Resource> {
+//!         match key {
+//!            ResourceKey::GetTest => Ok(Resource::Test(true)),
+//!            ResourceKey::GetRender => Ok(Resource::Render(self.render)),
 //!         }
 //!     }
 //! }
@@ -79,9 +95,12 @@
 
 pub mod core;
 pub mod watch;
+pub use anyhow;
 
 #[cfg(test)]
 mod tests {
+
+    use std::cell::RefCell;
 
     use crate::{
         core::LowBullMaster,
@@ -90,42 +109,64 @@ mod tests {
     use anyhow::Result;
 
     #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
-    enum Message {
+    enum HandleKey {
         Empty,
         StartRender,
         StopRender,
-        GetRender,
     }
 
     #[derive(Debug, Hash, PartialEq, Eq)]
     enum Response {
-        Render(bool),
         None,
+    }
+
+    #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
+    enum ResourceKey {
+        GetTest,
+        GetRender,
+    }
+
+    #[derive(Debug, Hash, PartialEq, Eq)]
+    enum Resource {
+        Render(bool),
+        Test(bool),
     }
 
     struct Master {
         render: bool,
         #[cfg(debug_assertions)]
-        watcher: watch::LowBullWatcher<Message>,
+        handle_watcher: watch::LowBullWatcher<HandleKey>,
+        #[cfg(debug_assertions)]
+        resource_watcher: RefCell<watch::LowBullWatcher<ResourceKey>>,
     }
 
-    impl LowBullMaster<Message, Response> for Master {
-        fn handle(&mut self, key: Message) -> Result<Response> {
+    impl LowBullMaster<HandleKey, Response, ResourceKey, Resource> for Master {
+        fn handle(&mut self, key: HandleKey) -> Result<Response> {
             if cfg!(debug_assertions) {
-                self.watcher.watch(key);
+                self.handle_watcher.watch(key);
             }
 
             match key {
-                Message::StartRender => {
+                HandleKey::StartRender => {
                     self.render = true;
                     Ok(Response::None)
                 }
-                Message::StopRender => {
+                HandleKey::StopRender => {
                     self.render = false;
                     Ok(Response::None)
                 }
-                Message::Empty => Ok(Response::None),
-                Message::GetRender => Ok(Response::Render(self.render)),
+                HandleKey::Empty => Ok(Response::None),
+            }
+        }
+
+        fn get_resource(&self, key: ResourceKey) -> Result<Resource> {
+            if cfg!(debug_assertions) {
+                self.resource_watcher.borrow_mut().watch(key);
+            }
+
+            match key {
+                ResourceKey::GetTest => Ok(Resource::Test(true)),
+                ResourceKey::GetRender => Ok(Resource::Render(self.render)),
             }
         }
     }
@@ -134,44 +175,49 @@ mod tests {
     fn test_master() {
         let mut master = Master {
             render: false,
-            watcher: LowBullWatcher::new(1000),
+            handle_watcher: LowBullWatcher::new(1000),
+            resource_watcher: RefCell::new(LowBullWatcher::new(1000)),
         };
 
         assert_eq!(
-            master.handle(Message::GetRender).unwrap(),
-            Response::Render(false)
+            master.get_resource(ResourceKey::GetRender).unwrap(),
+            Resource::Render(false)
         );
 
-        assert_eq!(master.handle(Message::StartRender).unwrap(), Response::None);
-
         assert_eq!(
-            master.handle(Message::GetRender).unwrap(),
-            Response::Render(true)
+            master.handle(HandleKey::StartRender).unwrap(),
+            Response::None
         );
 
-        assert_eq!(master.handle(Message::StopRender).unwrap(), Response::None);
+        assert_eq!(
+            master.get_resource(ResourceKey::GetRender).unwrap(),
+            Resource::Render(true)
+        );
 
         assert_eq!(
-            master.handle(Message::GetRender).unwrap(),
-            Response::Render(false)
+            master.handle(HandleKey::StopRender).unwrap(),
+            Response::None
+        );
+
+        assert_eq!(
+            master.get_resource(ResourceKey::GetRender).unwrap(),
+            Resource::Render(false)
+        );
+
+        assert_eq!(
+            master.get_resource(ResourceKey::GetTest).unwrap(),
+            Resource::Test(true)
         );
 
         let responses = master
-            .handle_many(vec![
-                Message::StartRender,
-                Message::GetRender,
-                Message::StopRender,
-                Message::GetRender,
-            ])
+            .handle_many(vec![HandleKey::StartRender, HandleKey::StopRender])
             .unwrap();
 
         assert_eq!(responses[0], Response::None);
-        assert_eq!(responses[1], Response::Render(true));
-        assert_eq!(responses[2], Response::None);
-        assert_eq!(responses[3], Response::Render(false));
+        assert_eq!(responses[1], Response::None);
 
         for _ in 0..1000 {
-            master.handle(Message::Empty).unwrap();
+            master.handle(HandleKey::Empty).unwrap();
         }
 
         // if cfg!(debug_assertions) {

@@ -9,15 +9,21 @@
 //! # Example
 //!
 //! ```
+//! use lowbulls::core::LowBullMaster;
 //! use anyhow::Result;
 //!
 //! struct ExampleBullMaster;
 //!
-//! impl LowBullMaster<i32, i32> for ExampleBullMaster {
+//! impl LowBullMaster<i32, i32, i32, i32> for ExampleBullMaster {
 //!     fn handle(&mut self, key: i32) -> Result<i32> {
 //!         // Some operation on the key
 //!         Ok(key * 2)
 //!     }
+//!
+//!
+//!     fn get_resource(&self, key: i32) -> Result<i32> {
+//!        Ok(key)
+//!    }
 //! }
 //!
 //! fn main() -> Result<()> {
@@ -32,7 +38,8 @@
 use anyhow::Result;
 
 /// A trait for handling operations on keys of type `K` to produce results of type `R`.
-pub trait LowBullMaster<K: Eq + PartialEq, R: Eq + PartialEq> {
+pub trait LowBullMaster<K: Eq + PartialEq, R: Eq + PartialEq, SK: Eq + PartialEq, S: Eq + PartialEq>
+{
     /// Handles a single key and returns a result.
     ///
     /// # Arguments
@@ -64,4 +71,16 @@ pub trait LowBullMaster<K: Eq + PartialEq, R: Eq + PartialEq> {
         }
         Ok(responses)
     }
+
+    /// Gets a resource from the master.
+    ///
+    /// # Arguments
+    ///
+    /// * `key` - The key to get the resource for.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing the resource.
+    ///
+    fn get_resource(&self, key: SK) -> Result<S>;
 }
