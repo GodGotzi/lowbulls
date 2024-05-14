@@ -38,8 +38,7 @@
 use anyhow::Result;
 
 /// A trait for handling operations on keys of type `K` to produce results of type `R`.
-pub trait LowBullMaster<K: Eq + PartialEq, R: Eq + PartialEq, SK: Eq + PartialEq, S: Eq + PartialEq>
-{
+pub trait LowBullMaster<K: Eq + PartialEq, R, SK: Eq + PartialEq, S> {
     /// Handles a single key and returns a result.
     ///
     /// # Arguments
